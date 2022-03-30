@@ -8,8 +8,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // Token has 0 decimals—the lowest denomination of $CHIP = $1 of stablecoin
 contract Cashier is ERC20("PokerDAO Playing Chips", "CHIPS", 0), Ownable {  
 
+  /////////////////////////////////////////////////////////////////////////////////
+  //                             CONTRACT VARIABLES                              //
+  /////////////////////////////////////////////////////////////////////////////////
+
 
   mapping(address => bool) public ACCEPTED_STABLECOINS;
+
+
+  /////////////////////////////////////////////////////////////////////////////////
+  //                              SYSTEM GOVERNANCE                              //
+  /////////////////////////////////////////////////////////////////////////////////
+
 
   function approveStablecoin(ERC20 token_) external onlyOwner {
     ACCEPTED_STABLECOINS[address(token_)] = true;
@@ -18,7 +28,13 @@ contract Cashier is ERC20("PokerDAO Playing Chips", "CHIPS", 0), Ownable {
   function refuseStablecoin(ERC20 token_) external onlyOwner {
     ACCEPTED_STABLECOINS[address(token_)] = false;
   }
+
+
+  /////////////////////////////////////////////////////////////////////////////////
+  //                              USER INTERFACE                                 //
+  /////////////////////////////////////////////////////////////////////////////////
   
+
   // ENTER AMOUNT IN DOLLARS: DO NOT INCLUDE DECIMALS (Base unit = $1)
   function buyChips(ERC20 token_, uint256 amount_) external {
     require(ACCEPTED_STABLECOINS[address(token_)] == true, "token not accepted by cashier");
