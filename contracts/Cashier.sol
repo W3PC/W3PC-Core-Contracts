@@ -38,14 +38,14 @@ contract Cashier is ERC20("PokerDAO Playing Chips", "CHIPS", 0), Ownable {
   // ENTER AMOUNT IN DOLLARS: DO NOT INCLUDE DECIMALS (Base unit = $1)
   function buyChips(ERC20 token_, uint256 amount_) external {
     require(ACCEPTED_STABLECOINS[address(token_)] == true, "token not accepted by cashier");
-    token_.transferFrom(msg.sender, address(this), amount_ * token_.decimals());
+    token_.transferFrom(msg.sender, address(this), amount_ * (10**token_.decimals()));
     _mint(msg.sender, amount_);
   }
 
   // ENTER AMOUNT IN DOLLARS: DO NOT INCLUDE DECIMALS (Base unit = $1)
   function cashOut(ERC20 token_, uint256 amount_) external {
     require(ACCEPTED_STABLECOINS[address(token_)] == true, "token not accepted by cashier");
-    token_.transfer(address(this), amount_ * token_.decimals());
+    token_.transfer(msg.sender, amount_ * (10**token_.decimals()));
     _burn(msg.sender, amount_);
   }
 }

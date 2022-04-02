@@ -5,7 +5,7 @@ pragma solidity ^0.8.10;
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PokerTable is Ownable {  
+contract Game is Ownable {  
 
   /////////////////////////////////////////////////////////////////////////////////
   //                             CONTRACT VARIABLES                              //
