@@ -6,47 +6,34 @@ import "@rari-capital/solmate/src/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Token has 0 decimals—the lowest denomination of $CHIP = $1 of stablecoin
-contract Cashier is ERC20("PokerDAO Playing Chips", "CHIPS", 0), Ownable {  
+contract Cashier is ERC20( "PokerDAO Playing Chips (Beta)", "CHIPS", 0 ), Ownable {  
 
-  /////////////////////////////////////////////////////////////////////////////////
-  //                             CONTRACT VARIABLES                              //
-  /////////////////////////////////////////////////////////////////////////////////
+  // immutable $USDC ERC20 contract address
+  ERC20 immutable internal _usdc;
 
-
-  mapping(address => bool) public ACCEPTED_STABLECOINS;
-
-
-  /////////////////////////////////////////////////////////////////////////////////
-  //                              SYSTEM GOVERNANCE                              //
-  /////////////////////////////////////////////////////////////////////////////////
-
-
-  function approveStablecoin(ERC20 token_) external onlyOwner {
-    ACCEPTED_STABLECOINS[address(token_)] = true;
+  constructor( ERC20 usdc_ ) {
+    _usdc = usdc_;
   }
 
-  function refuseStablecoin(ERC20 token_) external onlyOwner {
-    ACCEPTED_STABLECOINS[address(token_)] = false;
+  // get $CHIPS for $USDC (1:1)
+  function getChips( uint256 amtChips_ ) external {
+
+    // mint $CHIP to the players wallet
+    _mint( msg.sender, amtChips_ );
+
+    // transfer $USDC from the players wallet to the cashier
+    _usdc.transferFrom( msg.sender, address( this ), amtChips_ * ( 10**_usdc.decimals() ) );
   }
 
 
-  /////////////////////////////////////////////////////////////////////////////////
-  //                              USER INTERFACE                                 //
-  /////////////////////////////////////////////////////////////////////////////////
-  
+  // exchange amount of $CHIP to $USDC
+  function exchangeChips( uint256 amtChips_ ) external {
 
-  // ENTER AMOUNT IN DOLLARS: DO NOT INCLUDE DECIMALS (Base unit = $1)
-  function buyChips(ERC20 token_, uint256 amount_) external {
-    require(ACCEPTED_STABLECOINS[address(token_)] == true, "token not accepted by cashier");
-    token_.transferFrom(msg.sender, address(this), amount_ * (10**token_.decimals()));
-    _mint(msg.sender, amount_);
-  }
+    // burn $CHIP from the players wallet
+    _burn( msg.sender, amtChips_ );
 
-  // ENTER AMOUNT IN DOLLARS: DO NOT INCLUDE DECIMALS (Base unit = $1)
-  function cashOut(ERC20 token_, uint256 amount_) external {
-    require(ACCEPTED_STABLECOINS[address(token_)] == true, "token not accepted by cashier");
-    token_.transfer(msg.sender, amount_ * (10**token_.decimals()));
-    _burn(msg.sender, amount_);
+    // transfer $USDC to the players wallet from the cashier
+    _usdc.transfer( msg.sender, amtChips_ * ( 10**_usdc.decimals() ) );
   }
 }
 

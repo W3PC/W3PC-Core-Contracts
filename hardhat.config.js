@@ -2,6 +2,7 @@
 
 require("dotenv").config();
 require("hardhat-deploy");
+require("@nomiclabs/hardhat-etherscan");
 
 module.exports = {
   solidity: {
@@ -45,7 +46,7 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
     },
     polygonMainnet: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/lP6lP_6hE-DN59hifFzJbMOM8vnZP7-g",
+      url: "https://polygon-mainnet.g.alchemy.com/v2/uEdpAJLHmVgNqAigtAXhrzPjtcFkE6PY",
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
     },
     avalancheMainnet: {
@@ -53,10 +54,17 @@ module.exports = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
     },
   },
+  etherscan: {
+    // apiUrl: 'https://polygonscan.com',
+    apiKey: process.env.POLYGONSCAN_API_KEY,
+    // ^ pass this as a flag, for some reason the API KEY is not working. 
+      // npx hardhat etherscan-verify --network polygonMainnet --api-key 9E1XCKEXXE2TY8T2CA9GH7AQXKC9EY2GRB
+
+  },
   verify: {
     etherscan: {
       // apiUrl: 'https://polygonscan.com',
-      // apiKey: 'process.env.POLYGONSCAN_API_KEY',
+      // apiKey: process.env.POLYGONSCAN_API_KEY,
       // ^ pass this as a flag, for some reason the API KEY is not working. 
         // npx hardhat etherscan-verify --network polygonMainnet --api-key 9E1XCKEXXE2TY8T2CA9GH7AQXKC9EY2GRB
 
