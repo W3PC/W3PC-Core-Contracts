@@ -98,20 +98,20 @@ contract Game is Ownable {
 
 
   // HOST ONLY: trading internal credits in game for $CHIP (cashing out)
-  function returnChips(address player_, uint256 amount_) external onlyOwner {
+  function returnChips(uint256 amount_) external {
 
     // if the amount of chips returned to the player exceeds their internal credit balance, throw an error
-    if ( amount_ > gameCredits[player_] )  { revert NotEnoughCredits(); }
+    if ( amount_ > gameCredits[msg.sender] )  { revert NotEnoughCredits(); }
     
     // decrease the amount of internal credits of the player by the cash out amount
-    gameCredits[player_] -= amount_;
+    gameCredits[msg.sender] -= amount_;
 
     // decrease the total amount of internal credits in the game
     totalGameCredits -= amount_;
 
     // transfer $CHIP from the player 
-    pokerDaoChips.transfer(player_, amount_);
-  }  
+    pokerDaoChips.transfer(msg.sender, amount_);
+  }
 
 
   // HOST ONLY: increase credits from a player. This is to track when a player keeps their winnings as in game credits.
