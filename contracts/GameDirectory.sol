@@ -3,7 +3,6 @@
 pragma solidity ^0.8.10;
 
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 contract GameDirectory {
@@ -46,7 +45,7 @@ contract GameDirectory {
 }  
 
 
-contract Game is Ownable {  
+contract Game {
 
   /////////////////////////////////////////////////////////////////////////////////
   //                             CONTRACT VARIABLES                              //
@@ -62,19 +61,30 @@ contract Game is Ownable {
   // ERC20 token contract for the $CHIP tokens used in the game
   ERC20 public immutable pokerDaoChips;
 
+  // mapping of addresses that can change internal credits
+  mapping(address => bool) public getAdmins;
+
   // error for when the internal credits don't match the contract's $CHIP balance
   error NotEnoughCredits();
 
   // event for tracking player credit balances
   event CreditsUpdated(address indexed player, uint256 amount, bool isAdded);
 
-  constructor(address host_, ERC20 pokerDaoChips_) {
+  // event for tracking admins
+  event AdminUpdated(address indexed admin, address indexed caller, bool isAdded);
 
+  // modifier to control access of protected functions
+  modifier onlyAdmin() {
+    require(getAdmins[msg.sender], "UNAUTHORIZED");
+    _;
+  }
+
+  constructor(address host_, ERC20 pokerDaoChips_) {
     // set the ERC20 token contract
     pokerDaoChips = pokerDaoChips_;
-    
-    // Ownable.sol: transfer ownership of the contract to the host
-    transferOwnership(host_);
+
+    // add the host as an admin
+    getAdmins[host_] = true;
   }
 
 
@@ -115,7 +125,7 @@ contract Game is Ownable {
 
 
   // HOST ONLY: increase credits from a player. This is to track when a player keeps their winnings as in game credits.
-  function addCredits(address player_, uint256 amount_) external onlyOwner {
+  function addCredits(address player_, uint256 amount_) external onlyAdmin {
 
     // if the total game credits after adding the amount exceeds the number of $CHIP tokens stored in the contract, throw an error
     if ( totalGameCredits + amount_ > pokerDaoChips.balanceOf(address(this)) )  { revert NotEnoughCredits(); }
@@ -133,7 +143,7 @@ contract Game is Ownable {
 
   // HOST ONLY: deduct internal credits from a player. This is to track when a player "adds on".
   // NOTE: This does not transfer any $CHIP balances. 
-  function deductCredits(address player_, uint256 amount_) external onlyOwner {
+  function deductCredits(address player_, uint256 amount_) external onlyAdmin {
 
     // reduce the total amount of internal credits in the game
     totalGameCredits -= amount_;
@@ -144,4 +154,25 @@ contract Game is Ownable {
     // credits have been deducted from player
     emit CreditsUpdated(player_, amount_, false);
   }
+
+  // called by an admin to add another admin
+  function addAdmin(address newAdmin_) external onlyAdmin {
+
+    // add address to whitelist
+    getAdmins[newAdmin_] = true;
+
+    // admin has been added
+    emit AdminUpdated(newAdmin_, msg.sender, true);
+  }
+
+  // called by an admin to remove another admin
+  function removeAdmin(address oldAdmin_) external onlyAdmin {
+
+    // remove address from admin whitelist
+    getAdmins[oldAdmin_] = false;
+
+    // admin has been removed
+    emit AdminUpdated(oldAdmin_, msg.sender, false);
+  }
+
 }

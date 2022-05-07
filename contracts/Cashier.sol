@@ -3,10 +3,9 @@
 pragma solidity ^0.8.10;
 
 import "@rari-capital/solmate/src/tokens/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Token has 0 decimals—the lowest denomination of $CHIP = $1 of stablecoin
-contract Cashier is ERC20( "PokerDAO Playing Chips (Beta)", "CHIPS", 0 ), Ownable {  
+contract Cashier is ERC20( "PokerDAO Playing Chips (Beta)", "CHIPS", 0 ) {
 
   // immutable $USDC ERC20 contract address
   ERC20 immutable internal _usdc;
@@ -36,5 +35,3 @@ contract Cashier is ERC20( "PokerDAO Playing Chips (Beta)", "CHIPS", 0 ), Ownabl
     _usdc.transfer( msg.sender, amtChips_ * ( 10**_usdc.decimals() ) );
   }
 }
-
-
