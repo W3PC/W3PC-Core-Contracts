@@ -17,6 +17,9 @@ contract GameDirectory {
   // error for when host address is already hosting a game
   error AlreadyHostingAGame();
 
+  // event for tracking game creation and host address
+  event GameCreated(address indexed game, address indexed host);
+
 
   constructor( ERC20 chips_ ) {
 
@@ -31,8 +34,14 @@ contract GameDirectory {
     // if the host address is already hosting a game, throw an error
     if ( hostedGames[msg.sender] != address(0) ) { revert AlreadyHostingAGame(); }
 
-    // create a game and save the game address to the host addres
-    hostedGames[ msg.sender ] = address( new Game( msg.sender, chips ) );
+    // create a game
+    address game = address( new Game( msg.sender, chips) );
+
+    // save the game address to the host address
+    hostedGames[ msg.sender ] = game;
+
+    // game has been created
+    emit GameCreated(msg.sender, game);
   }
 }  
 
@@ -56,6 +65,8 @@ contract Game is Ownable {
   // error for when the internal credits don't match the contract's $CHIP balance
   error NotEnoughCredits();
 
+  // event for tracking player credit balances
+  event CreditsUpdated(address indexed player, uint256 amount, bool isAdded);
 
   constructor(address host_, ERC20 pokerDaoChips_) {
 
@@ -115,6 +126,8 @@ contract Game is Ownable {
     // increase the internal credits in the game by the amount
     totalGameCredits += amount_;
 
+    // credits have been added to player
+    emit CreditsUpdated(player_, amount_, true);
   }
 
 
@@ -127,5 +140,8 @@ contract Game is Ownable {
 
     // reduce the amount of a player's internal credits in the game
     gameCredits[player_] -= amount_;
+
+    // credits have been deducted from player
+    emit CreditsUpdated(player_, amount_, false);
   }
 }

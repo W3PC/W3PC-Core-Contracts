@@ -11,6 +11,8 @@ contract Account {
   // error for when the user already has a name
   error NameAlreadyExists();
 
+  // event for tracking addresses to names
+  event Registed(address indexed user, bytes32 indexed name);
 
   /////////////////////////////////////////////////////////////////////////////////
   //                                USER INTERFACE                               //
@@ -25,5 +27,8 @@ contract Account {
 
     // register the player's name in the name map
     name[msg.sender] = name_;
+
+    // name has been registered
+    emit Registed(msg.sender, name_);
   }
 }
