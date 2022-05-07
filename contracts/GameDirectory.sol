@@ -168,7 +168,7 @@ contract Game {
   // called by an admin to remove another admin
   function removeAdmin(address oldAdmin_) external onlyAdmin {
 
-    // set address back to default
+    // remove address from admin whitelist
     getAdmins[oldAdmin_] = false;
 
     // admin has been removed
