@@ -107,7 +107,7 @@ contract Game {
   }
 
 
-  // HOST ONLY: trading internal credits in game for $CHIP (cashing out)
+  // player removing credits from the game
   function returnChips(uint256 amount_) external {
 
     // if the amount of chips returned to the player exceeds their internal credit balance, throw an error
