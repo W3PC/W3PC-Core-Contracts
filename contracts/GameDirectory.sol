@@ -52,11 +52,23 @@ contract Game {
   /////////////////////////////////////////////////////////////////////////////////
 
 
+  // internal credits for each player in the game
+  mapping(address => uint256) public gameCredits;
+
+  // total internal credits assigned in the game
+  uint256 public totalGameCredits;
+
   // ERC20 token contract for the $CHIP tokens used in the game
   ERC20 public immutable pokerDaoChips;
 
   // mapping of addresses that can change internal credits
   mapping(address => bool) public getAdmins;
+
+  // error for when the internal credits don't match the contract's $CHIP balance
+  error NotEnoughCredits();
+
+  // event for tracking player credit balances
+  event CreditsUpdated(address indexed player, uint256 amount, bool isAdded);
 
   // event for tracking admins
   event AdminUpdated(address indexed admin, address indexed caller, bool isAdded);
@@ -82,20 +94,66 @@ contract Game {
 
 
   // player adding credits in the game
-  function addChips(address player_, uint256 amount_) external onlyAdmin {
+  function addChips(uint256 amount_) external {
+
+    // increase the game credits for the player by the amount they buy in for
+    gameCredits[msg.sender] += amount_;
+
+    // increase the total game credits in the game by the amount the player buys in for
+    totalGameCredits += amount_;
 
     // transfer the $CHIP token from the user's wallet to the game contract by the buy in amount
-    pokerDaoChips.transferFrom(player_, address(this), amount_);
+    pokerDaoChips.transferFrom(msg.sender, address(this), amount_);
   }
 
 
   // HOST ONLY: trading internal credits in game for $CHIP (cashing out)
-  function returnChips(address player_, uint256 amount_) external onlyAdmin {
+  function returnChips(uint256 amount_) external {
+
+    // if the amount of chips returned to the player exceeds their internal credit balance, throw an error
+    if ( amount_ > gameCredits[msg.sender] )  { revert NotEnoughCredits(); }
+    
+    // decrease the amount of internal credits of the player by the cash out amount
+    gameCredits[msg.sender] -= amount_;
+
+    // decrease the total amount of internal credits in the game
+    totalGameCredits -= amount_;
 
     // transfer $CHIP from the player 
-    pokerDaoChips.transfer(player_, amount_);
+    pokerDaoChips.transfer(msg.sender, amount_);
   }
 
+
+  // HOST ONLY: increase credits from a player. This is to track when a player keeps their winnings as in game credits.
+  function addCredits(address player_, uint256 amount_) external onlyAdmin {
+
+    // if the total game credits after adding the amount exceeds the number of $CHIP tokens stored in the contract, throw an error
+    if ( totalGameCredits + amount_ > pokerDaoChips.balanceOf(address(this)) )  { revert NotEnoughCredits(); }
+
+    // increase the internal credits for a player in the game by the amount
+    gameCredits[player_] += amount_;
+
+    // increase the internal credits in the game by the amount
+    totalGameCredits += amount_;
+
+    // credits have been added to player
+    emit CreditsUpdated(player_, amount_, true);
+  }
+
+
+  // HOST ONLY: deduct internal credits from a player. This is to track when a player "adds on".
+  // NOTE: This does not transfer any $CHIP balances. 
+  function deductCredits(address player_, uint256 amount_) external onlyAdmin {
+
+    // reduce the total amount of internal credits in the game
+    totalGameCredits -= amount_;
+
+    // reduce the amount of a player's internal credits in the game
+    gameCredits[player_] -= amount_;
+
+    // credits have been deducted from player
+    emit CreditsUpdated(player_, amount_, false);
+  }
 
   // called by an admin to add another admin
   function addAdmin(address newAdmin_) external onlyAdmin {
@@ -106,7 +164,6 @@ contract Game {
     // admin has been added
     emit AdminUpdated(newAdmin_, msg.sender, true);
   }
-
 
   // called by an admin to remove another admin
   function removeAdmin(address oldAdmin_) external onlyAdmin {
