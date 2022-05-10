@@ -40,7 +40,7 @@ contract GameDirectory {
     hostedGames[ msg.sender ] = game;
 
     // game has been created
-    emit GameCreated(msg.sender, game);
+    emit GameCreated(game, msg.sender);
   }
 }  
 
