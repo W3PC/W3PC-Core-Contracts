@@ -11,7 +11,7 @@ contract Account {
   error NameAlreadyExists();
 
   // event for tracking addresses to names
-  event Registed(address indexed user, bytes32 indexed name);
+  event Registered(address indexed user, bytes32 indexed name);
 
   /////////////////////////////////////////////////////////////////////////////////
   //                                USER INTERFACE                               //
@@ -28,6 +28,6 @@ contract Account {
     name[msg.sender] = name_;
 
     // name has been registered
-    emit Registed(msg.sender, name_);
+    emit Registered(msg.sender, name_);
   }
 }
