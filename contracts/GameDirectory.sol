@@ -62,7 +62,7 @@ contract Game {
   ERC20 public immutable pokerDaoChips;
 
   // mapping of addresses that can change internal credits
-  mapping(address => bool) public getAdmins;
+  mapping(address => bool) public isAdmin;
 
   // error for when the internal credits don't match the contract's $CHIP balance
   error NotEnoughCredits();
@@ -75,7 +75,7 @@ contract Game {
 
   // modifier to control access of protected functions
   modifier onlyAdmin() {
-    require(getAdmins[msg.sender], "UNAUTHORIZED");
+    require(isAdmin[msg.sender], "UNAUTHORIZED");
     _;
   }
 
@@ -84,7 +84,7 @@ contract Game {
     pokerDaoChips = pokerDaoChips_;
 
     // add the host as an admin
-    getAdmins[host_] = true;
+    isAdmin[host_] = true;
   }
 
 
@@ -159,7 +159,7 @@ contract Game {
   function addAdmin(address newAdmin_) external onlyAdmin {
 
     // add address to whitelist
-    getAdmins[newAdmin_] = true;
+    isAdmin[newAdmin_] = true;
 
     // admin has been added
     emit AdminUpdated(newAdmin_, msg.sender, true);
@@ -169,7 +169,7 @@ contract Game {
   function removeAdmin(address oldAdmin_) external onlyAdmin {
 
     // remove address from admin whitelist
-    getAdmins[oldAdmin_] = false;
+    isAdmin[oldAdmin_] = false;
 
     // admin has been removed
     emit AdminUpdated(oldAdmin_, msg.sender, false);
