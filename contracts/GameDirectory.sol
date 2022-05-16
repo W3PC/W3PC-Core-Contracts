@@ -104,6 +104,9 @@ contract Game {
 
     // transfer the $CHIP token from the user's wallet to the game contract by the buy in amount
     pokerDaoChips.transferFrom(msg.sender, address(this), amount_);
+
+    // credits have been added to player
+    emit CreditsUpdated(msg.sender, amount_, true);
   }
 
 
@@ -121,6 +124,9 @@ contract Game {
 
     // transfer $CHIP from the player 
     pokerDaoChips.transfer(msg.sender, amount_);
+
+    // credits have been deducted from player
+    emit CreditsUpdated(msg.sender, amount_, false);
   }
 
 
