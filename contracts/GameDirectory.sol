@@ -138,6 +138,9 @@ contract Game {
     // decrease the amount of internal credits of the player by the cash out amount
     gameCredits[msg.sender] -= amount_;
 
+    // reduce the total amount of internal credits in the game
+    totalGameCredits -= amount_;
+
     // credits have been deducted from player
     emit CreditsUpdated(msg.sender, amount_, false);
   }
@@ -195,5 +198,4 @@ contract Game {
     // admin has been removed
     emit AdminUpdated(oldAdmin_, msg.sender, false);
   }
-
 }
