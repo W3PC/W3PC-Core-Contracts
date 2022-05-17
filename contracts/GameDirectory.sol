@@ -93,10 +93,10 @@ contract Game {
   /////////////////////////////////////////////////////////////////////////////////
 
 
-  // player adding credits in the game
-  function addChips(uint256 amount_) external {
+  // player post CHIPS for credit
+  function postChips(uint256 amount_) external {
 
-    // increase the game credits for the player by the amount they buy in for
+    // increase the player credit by the posted amount
     gameCredits[msg.sender] += amount_;
 
     // increase the total game credits in the game by the amount the player buys in for
@@ -111,7 +111,7 @@ contract Game {
 
 
   // player removing credits from the game
-  function returnChips(uint256 amount_) external {
+  function withdrawChips(uint256 amount_) external {
 
     // if the amount of chips returned to the player exceeds their internal credit balance, throw an error
     if ( amount_ > gameCredits[msg.sender] )  { revert NotEnoughCredits(); }
@@ -124,6 +124,19 @@ contract Game {
 
     // transfer $CHIP from the player 
     pokerDaoChips.transfer(msg.sender, amount_);
+
+    // credits have been deducted from player
+    emit CreditsUpdated(msg.sender, amount_, false);
+  }
+
+   // player tipping credits to the game
+  function tip(uint256 amount_) external {
+
+    // if the amount of chips returned to the player exceeds their internal credit balance, throw an error
+    if ( amount_ > gameCredits[msg.sender] )  { revert NotEnoughCredits(); }
+    
+    // decrease the amount of internal credits of the player by the cash out amount
+    gameCredits[msg.sender] -= amount_;
 
     // credits have been deducted from player
     emit CreditsUpdated(msg.sender, amount_, false);
@@ -161,6 +174,7 @@ contract Game {
     emit CreditsUpdated(player_, amount_, false);
   }
 
+
   // called by an admin to add another admin
   function addAdmin(address newAdmin_) external onlyAdmin {
 
@@ -170,6 +184,7 @@ contract Game {
     // admin has been added
     emit AdminUpdated(newAdmin_, msg.sender, true);
   }
+
 
   // called by an admin to remove another admin
   function removeAdmin(address oldAdmin_) external onlyAdmin {
