@@ -56,7 +56,7 @@ module.exports = {
   },
   etherscan: {
     // apiUrl: 'https://polygonscan.com',
-    apiKey: process.env.POLYGONSCAN_API_KEY,
+    apiKey: process.env.SNOWTRACE_API_KEY,
     // ^ pass this as a flag, for some reason the API KEY is not working. 
       // npx hardhat etherscan-verify --network polygonMainnet --api-key 9E1XCKEXXE2TY8T2CA9GH7AQXKC9EY2GRB
 
