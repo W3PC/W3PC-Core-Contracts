@@ -53,6 +53,10 @@ module.exports = {
       url: "https://api.avax.network/ext/bc/C/rpc",
       accounts: [process.env.DEPLOYER_PRIVATE_KEY],
     },
+    optimismMainnet: {
+      url: "https://opt-mainnet.g.alchemy.com/v2/lyQfoOi72R0XEJ-BgZOqASk2eYA4yd7O",
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+    }
   },
   etherscan: {
     // apiUrl: 'https://polygonscan.com',

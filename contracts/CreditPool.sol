@@ -54,39 +54,40 @@ contract CreditPool {
 
 
   // member buys credits
-  function buyCredit(uint256 purchaseAmt_) external {
+  function buyCredit(uint256 credits_) external {
 
     // increase the member credit by the posted amount
-    memberCredits[msg.sender] += purchaseAmt_;
+    memberCredits[msg.sender] += credits_;
 
     // increase the total game credits in the game by the amount the member buys in for
-    totalCredits += purchaseAmt_;
+    totalCredits += credits_;
 
     // transfer the reserveToken token from the user's wallet to the pool contract for the purchaed amount
-    reserveToken.transferFrom(msg.sender, address(this), purchaseAmt_);
+    // 6 decimals for USDC
+    reserveToken.transferFrom(msg.sender, address(this), credits_ * 1e6);
 
     // credits have been added to member
-    emit CreditsUpdated(msg.sender, purchaseAmt_, true);
+    emit CreditsUpdated(msg.sender, credits_, true);
   }
 
 
   // member withdraws credits
-  function withdrawCredit(uint256 withdrawAmt_) external {
+  function withdrawCredit(uint256 credits_) external {
 
-    // ensure the amount of chips returning to the member does not exceed their internal credit balance
-    if ( withdrawAmt_ > memberCredits[msg.sender] )  { revert NotEnoughCredits(); }
+    // ensure the withdraw amount cannot exceed their internal credit balance
+    if ( credits_ > memberCredits[msg.sender] )  { revert NotEnoughCredits(); }
     
-    // decrease the amount of internal credits of the member
-    memberCredits[msg.sender] -= withdrawAmt_;
+    // decrease the internal credits of the member
+    memberCredits[msg.sender] -= credits_;
 
     // reduce the total outstanding credits in the pool
-    totalCredits -= withdrawAmt_;
+    totalCredits -= credits_;
 
     // transfer reserveTokens to the member 
-    reserveToken.transfer(msg.sender, withdrawAmt_);
+    reserveToken.transfer(msg.sender, credits_ * 1e6);
 
     // credits have been deducted from member
-    emit CreditsUpdated(msg.sender, withdrawAmt_, false);
+    emit CreditsUpdated(msg.sender, credits_, false);
   }
 
 
@@ -108,33 +109,34 @@ contract CreditPool {
 
 
   // HOST ONLY: add credits to a member's balance
-  function addCredits(address member_, uint256 amount_) external onlyHost {
+  function addCredits(address member_, uint256 addedCredits_) external onlyHost {
 
     // ensure the total pool credits does not exceed the number of reserve tokens in the contract
-    if ( totalCredits + amount_ > reserveToken.balanceOf(address(this)) )  { revert NotEnoughCredits(); }
+    // 6 decimals for usdc
+    if ( totalCredits + addedCredits_ > reserveToken.balanceOf(address(this)) / 1e6 )  { revert NotEnoughCredits(); }
 
     // increase the internal credits for a member in the pool by the amount
-    memberCredits[member_] += amount_;
+    memberCredits[member_] += addedCredits_;
 
     // increase the total outstanding credits in the pool
-    totalCredits += amount_;
+    totalCredits += addedCredits_;
 
     // credits have been added to member
-    emit CreditsUpdated(member_, amount_, true);
+    emit CreditsUpdated(member_, addedCredits_, true);
   }
 
 
   // HOST ONLY: deduct internal credits from a member.
-  function deductCredits(address member_, uint256 amount_) external onlyHost {
+  function deductCredits(address member_, uint256 deductedCredits_) external onlyHost {
 
     // reduce the member's credit
-    memberCredits[member_] -= amount_;
+    memberCredits[member_] -= deductedCredits_;
 
     // reduce the total outstanding credits in the pool
-    totalCredits -= amount_;
+    totalCredits -= deductedCredits_;
 
     // credits have been deducted from member
-    emit CreditsUpdated(member_, amount_, false);
+    emit CreditsUpdated(member_, deductedCredits_, false);
   }
 
 
