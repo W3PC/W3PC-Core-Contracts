@@ -3,19 +3,19 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const namedAccounts = await getNamedAccounts();
   const { deployer } = namedAccounts;
 
-  // const deployAccountResult = await deploy("Account", {
-  //   from: deployer,
-  //   args: [],
-  // });
-  // if (deployAccountResult.newlyDeployed) {
-  //   log(
-  //     `contract Account deployed at ${deployAccountResult.address} using ${deployAccountResult.receipt.gasUsed} gas`
-  //   );
-  // } else {
-  //   log(
-  //     `using pre-existing contract Account at ${deployAccountResult.address}` 
-  //   )
-  // }
+  const deployMembershipResult = await deploy("Membership", {
+    from: deployer,
+    args: [],
+  });
+  if (deployMembershipResult.newlyDeployed) {
+    log(
+      `contract Membership deployed at ${deployMembershipResult.address} using ${deployMembershipResult.receipt.gasUsed} gas`
+    );
+  } else {
+    log(
+      `using pre-existing contract Membership at ${deployMembershipResult.address}` 
+    )
+  }
  
   // const deployCashierResult = await deploy("Cashier", {
   //   from: deployer,
