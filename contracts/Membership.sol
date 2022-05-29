@@ -2,12 +2,7 @@
 
 pragma solidity ^0.8.10;
 
-<<<<<<< Updated upstream:contracts/Membership.sol
-contract Membership {  
-=======
 contract Membership {
->>>>>>> Stashed changes:contracts/Account.sol
-
 
   // mapping of player wallet => name of player (in bytes32, may show up as hexidecimal in javascript)
   mapping(address => bytes32) public nameOfAddress;
