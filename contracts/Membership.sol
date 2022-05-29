@@ -2,7 +2,11 @@
 
 pragma solidity ^0.8.10;
 
+<<<<<<< Updated upstream:contracts/Membership.sol
 contract Membership {  
+=======
+contract Membership {
+>>>>>>> Stashed changes:contracts/Account.sol
 
 
   // mapping of player wallet => name of player (in bytes32, may show up as hexidecimal in javascript)
@@ -27,18 +31,27 @@ contract Membership {
   // assign a bytes32 username to the players wallet. Can only be called once. Names are immutable.
   function register(bytes32 name_) external {
     
-    // if the player already has a name, throw an error
-    if ( nameOfAddress[msg.sender] != bytes32(0) ) { revert NameAlreadyExists(); }
-
-    // if the name is already taken, throw an error
-    if ( addressOfName[name_] != address(0) ) { revert NameAlreadyExists(); }
+    // throw an error if name cannot be registered
+    if (
+      nameOfAddress[msg.sender] != bytes32(0) // if member already has a name
+      || addressOfName[name_] != address(0)  // name is taken
+      || name_ == bytes32(0) // or name is empty bytes
+    ) revert NameAlreadyExists();
 
     // throw an error if a character in the name is not 0-9 or a-z (lowercase alphanumeric)
-    for(uint i = 0; i < 32){
+    for (uint i = 0; i < 32;){
+
+      // extract character from name
       bytes1 char = name_[i];
-      if( !(char >= 0x30 && char <= 0x39) || !(char >= 0x61 && char <= 0x7A) ) { revert InvalidName(); }
-      unchecked {++i;}
-    }       
+
+      if ( !( // if the character is not
+        (char >= 0x30 && char <= 0x39) // lowercase alpha
+        || (char >= 0x61 && char <= 0x7A) // numeric
+        || (char == 0x00) // or a null character
+      )) revert InvalidName();
+
+      unchecked { ++i; }
+    }
 
     // register the player's name in the name map
     nameOfAddress[msg.sender] = name_;

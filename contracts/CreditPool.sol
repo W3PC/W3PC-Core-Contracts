@@ -43,8 +43,11 @@ contract CreditPool {
     // set the ERC20 token contract
     reserveToken = reserveToken_;
 
-    // add the host as an Host
+    // add the msg.sender as the first host
     isHost[msg.sender] = true;
+
+    // broadcast that msg.sender is the first host
+    emit HostUpdated(msg.sender, address(0), true);
   }
 
 
