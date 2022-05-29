@@ -33,15 +33,15 @@ contract Membership {
     // if the name is already taken, throw an error
     if ( addressOfName[name_] != address(0) ) { revert NameAlreadyExists(); }
 
-    // register the player's name in the name map
-    nameOfAddress[msg.sender] = name_;
-    addressOfName[name_] = msg.sender;
-
     // throw an error if a character in the name is not 0-9 or a-z (lowercase alphanumeric)
     for(uint i = 0; i < 32; i++){
         bytes1 char = name_[i];
         if( !(char >= 0x30 && char <= 0x39) || !(char >= 0x61 && char <= 0x7A) ) { revert InvalidName(); }
     }       
+
+        // register the player's name in the name map
+    nameOfAddress[msg.sender] = name_;
+    addressOfName[name_] = msg.sender;
 
     // name has been registered
     emit Registered(msg.sender, name_);
